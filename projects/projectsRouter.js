@@ -97,7 +97,7 @@ router.put('/:id', async (req, res) => {
         res.status(200).json(updatedProject);
       } else {
         res.status(204).json({
-          errorMessage: `The project with the ID: ${id} could not been found.`,
+          error: `The project with the ID: ${id} could not been found.`,
         });
       }
     } catch (error) {
