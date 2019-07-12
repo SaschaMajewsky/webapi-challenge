@@ -1,6 +1,7 @@
 const express = require('express');
 
 const dbActions = require('../data/helpers/actionModel.js');
+const dbProjects = require('../data/helpers/projectModel.js');
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 // CREATE NEW ACTION
-router.post('/', async (req, res) => {
+router.post('/', validatePost, async (req, res) => {
   const {
     body: { project_id, description, notes },
   } = req;
@@ -95,5 +96,30 @@ router.put('/:id', async (req, res) => {
     });
   }
 });
+
+// MIDDLEWARE
+async function validatePost(req, res, next) {
+  try {
+    const {
+      body: { project_id },
+    } = req;
+
+    const project = await dbProjects.get(project_id);
+    if (project) {
+      req.project = project;
+      next();
+    } else {
+      res.status(404).json({
+        message: `Project with the id ${project_id} was not found so action could not be attached.`,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      error:
+        'There was an error finding the corresponding project for the action' +
+        error,
+    });
+  }
+}
 
 module.exports = router;
